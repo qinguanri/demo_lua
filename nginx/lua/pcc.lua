@@ -89,10 +89,10 @@ local function _action_list()
     local args = {
         oid       = ngx.req.get_uri_args().oid,
         uid       = ngx.req.get_uri_args().uid,
-        coursor   = ngx.req.get_uri_args().coursor or 0,
+        cursor   = ngx.req.get_uri_args().cursor or 0,
         page_size = ngx.req.get_uri_args().page_size or 512,
         is_friend = ngx.req.get_uri_args().is_friend or 0 }
-
+    ngx.log(ngx.ERR, "args="..common.json_encode(args))
     local res, err = redis_op.list(args)
     return res, err
 end
