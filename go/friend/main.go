@@ -17,7 +17,7 @@ func main() {
     }
 
     defer c.Close()
-    f, err := os.Open("user.txt")
+    f, err := os.Open("friend.txt")
     if err != nil {
         panic(err)
     }
