@@ -23,6 +23,11 @@ func main() {
 
     rd := bufio.NewReader(f)
     for {
+        // 每行格式
+        // uid,nickname
+        // 1,Tom
+        // 2,Jerry
+    
         line, err := rd.ReadString('\n') //以'\n'为结束符读入一行
         
         if err != nil || io.EOF == err {
