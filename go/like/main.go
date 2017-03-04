@@ -10,14 +10,14 @@ import (
 )
 
 func main() {
-    c, err := redis.Dial("tcp", "127.0.0.1:6379")
+    c, err := redis.Dial("tcp", "192.168.0.4:6379")
     if err != nil {
         fmt.Println(err)
         return
     }
 
     defer c.Close()
-    f, err := os.Open("user.txt")
+    f, err := os.Open("like.txt")
     if err != nil {
         panic(err)
     }
@@ -34,14 +34,16 @@ func main() {
             break
         }
         s := strings.Split(line, ":")
+        if len(s) < 2 {
+            continue
+        }
         oid := s[0]
         like_list := strings.TrimSpace(s[1])
-        like_list := like_list[1:-1]
-        like_list = strings.Split(like_list, ",")
-
+        like_list = like_list[1:]
+        likes := strings.Split(like_list, ",")
         // 写入redis
-        for i :=0, i<len(like_list); i++ {
-            _, err = c.Do("zadd", "like:" + oid, 1, uid)
+        for i :=0; i<len(likes); i++ {
+            _, err = c.Do("zadd", "like:" + oid, 1, likes[i])
             if err != nil {
                 fmt.Println(err)
                 return
