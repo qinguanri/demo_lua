@@ -32,7 +32,7 @@ function tb:test_like()
     if 200 ~= res.status then
         error("failed code:" .. res.status)
     end
-
+    ngx.log(ngx.ERR, "body="..res.body)
     local data = json.decode(res.body)
     if not data.like_list or #(data.like_list) ~= 2 then
         error('error data:'..res.body)
