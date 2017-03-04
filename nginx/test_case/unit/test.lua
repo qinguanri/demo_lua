@@ -84,6 +84,43 @@ function tb:test_count()
     end
 end
 
+function tb:test_list()
+    --造数据：uid1与uid2、uid3是好友。uid1，uid2，uid3，uid4都like了oid1
+    red:del('like:1')
+    red:hset('user', '1', 'a')
+    red:hset('user', '2', 'b')
+    red:hset('user', '3', 'c')
+    red:hset('user', '4', 'd')
+
+    red:del('friend:1')
+    red:zadd('friend:1', 200, '2')
+    red:zadd('friend:1', 300, '3')
+
+    red:zadd('like:1', 100, '1')
+    red:zadd('like:1', 200, '2')
+    red:zadd('like:1', 300, '3')
+    red:zadd('like:1', 400, '4')
+
+    --action=list&cursor=xxx&page_size=xxx&is_friend=1|0
+    local res = ngx.location.capture(
+        "/pcc?action=list&oid=1&page_size=1&is_friend=1&uid=1",
+        { 
+          method = ngx.HTTP_POST
+        }
+    )
+
+    if 200 ~= res.status then
+        error("failed code:" .. res.status)
+    end
+
+    local data = json.decode(res.body)
+    if not data.like_list or #(data.like_list) ~= 1 or data.next_cursor ~= 1 then
+        error('error response data:'..res.body..
+            "\n expected =#(data.like_list) == 1 or data.next_cursor == 1")
+    end
+
+
+end
 tb:run()
 
 
