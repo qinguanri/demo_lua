@@ -5,6 +5,8 @@ import (
     "strings"
     "os"
     "github.com/garyburd/redigo/redis"
+    "bufio"
+    "io"
 )
 
 func main() {
@@ -24,25 +26,26 @@ func main() {
     rd := bufio.NewReader(f)
     for {
         // 每行格式
-        // uid,nickname
-        // 1,Tom
-        // 2,Jerry
-    
+        // oid,like_uids 101:[1,2]
+
         line, err := rd.ReadString('\n') //以'\n'为结束符读入一行
         
         if err != nil || io.EOF == err {
             break
         }
-        s := strings.Split(line, ",")
-        uid := s[0]
-        nickname := strings.TrimSpace(s[1])
-
+        s := strings.Split(line, ":")
+        oid := s[0]
+        like_list := strings.TrimSpace(s[1])
+        like_list := like_list[1:-1]
+        like_list = strings.Split(like_list, ",")
 
         // 写入redis
-        _, err = c.Do("HSET", "user", uid, nickname)
-        if err != nil {
-            fmt.Println(err)
-            return
+        for i :=0, i<len(like_list); i++ {
+            _, err = c.Do("zadd", "like:" + oid, 1, uid)
+            if err != nil {
+                fmt.Println(err)
+                return
+            }
         }
     }
 }
