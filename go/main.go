@@ -30,11 +30,11 @@ func main() {
         }
         s := strings.Split(line, ",")
         uid := s[0]
-        nickname := s[1]
+        nickname := strings.TrimSpace(s[1])
 
 
         // 写入redis
-        _, err := c.Do("HSET", "user", uid, nickname)
+        _, err = c.Do("HSET", "user", uid, nickname)
         if err != nil {
             fmt.Println(err)
             return
