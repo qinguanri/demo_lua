@@ -102,6 +102,7 @@ function tb:test_list()
     red:zadd('like:1', 400, '4')
 
     --action=list&cursor=xxx&page_size=xxx&is_friend=1|0
+    --有两个好友关注，但是本次只返回1个好友id，next_parsor=0
     local res = ngx.location.capture(
         "/pcc?action=list&oid=1&page_size=1&is_friend=1&uid=1",
         { 
@@ -114,9 +115,9 @@ function tb:test_list()
     end
 
     local data = json.decode(res.body)
-    if not data.like_list or #(data.like_list) ~= 1 or data.next_cursor ~= 1 then
+    if not data.like_list or #(data.like_list) ~= 1 or data.next_cursor ~= 0 then
         error('error response data:'..res.body..
-            "\n expected =#(data.like_list) == 1 or data.next_cursor == 1")
+            "\n expected =#(data.like_list) == 1 or data.next_cursor == 0")
     end
 
 

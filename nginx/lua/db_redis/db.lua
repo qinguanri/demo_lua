@@ -84,7 +84,7 @@ function list(args)
     -- 只返回好友的uid
     if args.is_friend == 1 then
         target_list = "friend_like_list:"..uid
-        size, err = red:zinterstore(target_list, "like:"..oid, "friend:"..uid)
+        size, err = red:zinterstore(target_list, 2, "like:"..oid, "friend:"..uid)
     else
         target_list = "like:"..oid
         size, err = red:zcard(target_list)
@@ -93,7 +93,7 @@ function list(args)
     local start, stop
     if cursor == 0 then
         stop = -1
-        start = size - page_size -1
+        start = size - page_size
     else
         stop = cursor
         start = stop - page_size
