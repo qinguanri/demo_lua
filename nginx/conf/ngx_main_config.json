@@ -7,8 +7,8 @@
     },
 
     "redis_conn" : {
-            "ip": "127.0.0.1",
-            "port": "6379",
+            "ip": "192.168.0.6",
+            "port": "9221",
             "keepalive_size":50,
             "keepalive_idle":1000
     }

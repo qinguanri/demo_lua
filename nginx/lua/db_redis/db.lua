@@ -21,7 +21,7 @@ function like(oid, uid)
     if not uids and type(uids) == 'table' then
         for _, uid in pairs(uids) do
             local nickname, err = red:hget('user', uid)
-            table.insert(like_list, {[uid] = nickname})
+            table.insert(like_list, { uid = nickname})
         end
     end
 
@@ -64,8 +64,8 @@ function list(args)
     local next_cursor = -1
     if args.cursor < 0 then
         local res = {
-            like_list = {}
-            next_cursor = -1
+            like_list = {},
+            next_cursor = -1,
             oid = tonumber(oid)
         }
         return res, nil
