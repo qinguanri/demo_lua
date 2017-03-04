@@ -34,8 +34,7 @@ func main() {
         s := strings.Split(line, ":")
         oid := s[0]
         like_list := strings.TrimSpace(s[1])
-        like_list = strings.Replace(like_list, "[", "", -1)
-        like_list = strings.Replace(like_list, "]", "", -1)
+        like_list := like_list[1:-1]
         like_list = strings.Split(like_list, ",")
         
         // 写入redis
