@@ -15,36 +15,6 @@ ngx.req.read_body()
 sort 
 ]==]
 
---[==[
-function get_plat_time_with_cache( )
-  local offset = common.get_data_with_cache({key="plat_time_offset",
-                                             exp_time_succ=10,
-                                             exp_time_fail=-1},
-                                  get_plat_time_offset)
-
-    return ngx.time() + (offset or 0)
-end
-
-function limit_parrelles_add( max_conn, timeout )
-    if max_conn <= 0 then
-        return 0
-    end
-
-    timeout = timeout or 60*60
-
-    local dict = ngx.shared.limit_conn
-    dict:add("seq_id", 1)
-
-    local dict_keys = dict:get_keys(0)
-    if #dict_keys - 1 >= max_conn then
-        return nil, "reach to max connection"
-    end
-
-    local seq_id = dict:incr("seq_id", 1)
-    dict:set(seq_id, true, timeout) -- 1hour will expire
-    return seq_id
-end
-]==]
 
 local function _action_like()
     local oid = ngx.req.get_uri_args().oid
