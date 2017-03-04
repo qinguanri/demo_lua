@@ -39,10 +39,14 @@ func main() {
         }
         oid := s[0]
         like_list := strings.TrimSpace(s[1])
-        like_list = like_list[1:]
+        length := len(like_list)
+        like_list = like_list[1:length-1]
         likes := strings.Split(like_list, ",")
         // 写入redis
         for i :=0; i<len(likes); i++ {
+            if likes[i] == "" {
+                continue
+            }
             _, err = c.Do("zadd", "like:" + oid, 1, likes[i])
             if err != nil {
                 fmt.Println(err)
