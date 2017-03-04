@@ -39,7 +39,7 @@ function is_like(oid, uid)
 
     local is_like, err = common.get_data_with_cache({
         key="like_count_"..oid.."_"..uid,
-        exp_time_succ=1,
+        exp_time_succ=5,
         exp_time_fail=-1},
         _is_like, oid, uid)
 
@@ -54,7 +54,7 @@ function count(oid)
 
     local count, err = common.get_data_with_cache({
         key="like_count_"..oid,
-        exp_time_succ=1,
+        exp_time_succ=5,
         exp_time_fail=-1},
         _get_like_count, oid)
 
