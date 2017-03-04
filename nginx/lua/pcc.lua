@@ -91,7 +91,7 @@ local function _action_list()
         uid       = ngx.req.get_uri_args().uid,
         coursor   = ngx.req.get_uri_args().coursor or 0,
         page_size = ngx.req.get_uri_args().page_size or 512,
-        is_friend = ngx.req.get_uri_args().is_friend or 0 }
+        is_friend = tonumber(ngx.req.get_uri_args().is_friend or 0) }
 
     local res, err = redis_op.list(args)
     return res, err
