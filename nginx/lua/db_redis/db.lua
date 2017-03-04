@@ -20,10 +20,10 @@ function like(oid, uid)
     ngx.log(ngx.ERR, "action like, like_list"..common.json_encode(uids))
     ngx.log(ngx.ERR, "type="..type(uids))
     local like_list = {}
-    if not uids and type(uids) == 'table' then
+    if uids and type(uids) == 'table' then
         for _, uid in pairs(uids) do
             local nickname, err = red:hget('user', uid)
-            table.insert(like_list, { uid = nickname})
+            table.insert(like_list, { [uid] = nickname})
             ngx.log(ngx.ERR, "like_list="..common.json_encode(like_list))
         end
     end
