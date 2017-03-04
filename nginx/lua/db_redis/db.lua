@@ -73,21 +73,27 @@ function list(args)
         }
         return res, nil
     end
-
-    local target_list, size
+    
+    local oid = args.oid
+    local uid = args.uid
+    local cursor = args.cursor   --ngx.req.get_uri_args().cursor or 0,
+    local page_size = args.page_size --ngx.req.get_uri_args().page_size or 512,
+    local is_friend = args.is_friend --ngx.req.get_uri_args().is_friend or 0 } 
+    
+    local target_list, size, err
     -- 只返回好友的uid
     if args.is_friend == 1 then
         target_list = "friend_like_list:"..uid
-        local size, err = red:zinterstore(target_list, "like:"..oid, "friend:"..uid)
+        size, err = red:zinterstore(target_list, "like:"..oid, "friend:"..uid)
     else
         target_list = "like:"..oid
-        local size, err = red:zcard(target_list)
+        size, err = red:zcard(target_list)
     end
 
     local start, stop
     if cursor == 0 then
         stop = -1
-        start = size - page_size
+        start = size - page_size -1
     else
         stop = cursor
         start = stop - page_size
@@ -104,7 +110,7 @@ function list(args)
     local uids, err = red:zrange(target_list, start, stop) 
     if uids ~= nil and type(uids) == 'table' then
         for _, uid in pairs(uids) do
-            nickname, err = red:hget('user', uid)
+            local nickname, err = red:hget('user', uid)
             table.insert(like_list, {[uid] = nickname})
         end
     end
