@@ -1,8 +1,7 @@
 local common = require "lua.comm.common"
 local redis_op = require "lua.db_redis.db"
 
-ngx.req.read_body()
-
+ngx.req.discard_body()
 ------ 主要数据结构 ------
 --[==[
 
@@ -81,11 +80,9 @@ elseif action == 'count' then
 elseif action == 'list' then
     res, err = _action_list()
 else
-    res = {
-        error_code = 501,
-        error_message = 'unexpected action' .. (action or "nil")
-    }
+    err = 'unexpected action' .. (action or "nil")
 end
+
 if err then
     res = {
         error_code = 501,

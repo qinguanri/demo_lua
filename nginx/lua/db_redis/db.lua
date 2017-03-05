@@ -19,12 +19,21 @@ function like(oid, uid)
     end
     
     local uids, err = red:zrange('like:'..oid, -20, -1)
-    --ngx.log(ngx.ERR, "action like, like_list"..common.json_encode(uids))
-    --ngx.log(ngx.ERR, "type="..type(uids))
+    
     local like_list = {}
     if uids and type(uids) == 'table' then
         for _, uid in pairs(uids) do
-            local nickname, err = red:hget('user', uid)
+            local _get_nickname = function(uid)
+                local nickname, err = red:hget('user', uid)
+                return nickname
+            end
+
+            local nickname = common.get_data_with_cache(
+                key="nickname_of_"..uid,
+                exp_time_succ=300,
+                exp_time_fail=-1},
+                _get_nickname, uid)
+            
             if nickname ~= nil then
                 table.insert(like_list, { [uid] = nickname})
             end
@@ -42,8 +51,8 @@ function is_like(oid, uid)
     end
 
     local is_like, err = common.get_data_with_cache({
-        key="like_count_"..oid.."_"..uid,
-        exp_time_succ=60,
+        key="is_like_"..oid.."_"..uid,
+        exp_time_succ=300,
         exp_time_fail=-1},
         _is_like, oid, uid)
 
@@ -53,12 +62,12 @@ end
 function count(oid)
     local _get_like_count = function(oid)
         local count, err = red:zcard('like:'..oid)
-        return count, err
+        return count or 0, err
     end
 
     local count, err = common.get_data_with_cache({
-        key="like_count_"..oid,
-        exp_time_succ=10,
+        key="like_count_of_"..oid,
+        exp_time_succ=300,
         exp_time_fail=-1},
         _get_like_count, oid)
 
@@ -98,8 +107,8 @@ function list(args)
             return s or 0
         end
         size, err = common.get_data_with_cache({
-          key="size_like_"..oid,
-          exp_time_succ=60,
+          key="like_count_of"..oid,
+          exp_time_succ=300,
           exp_time_fail=-1},
           _get_like_size, oid)
     end
@@ -124,11 +133,23 @@ function list(args)
     local uids, err = red:zrange(target_list, start, stop) 
     if uids ~= nil and type(uids) == 'table' then
         for _, uid in pairs(uids) do
-            local nickname, err = red:hget('user', uid)
-            table.insert(like_list, {[uid] = nickname})
+            local _get_nickname = function(uid)
+                local nickname, err = red:hget('user', uid)
+                return nickname
+            end
+
+            local nickname = common.get_data_with_cache(
+                key="nickname_of_"..uid,
+                exp_time_succ=300,
+                exp_time_fail=-1},
+                _get_nickname, uid)
+
+            if nickname ~= nil then
+                table.insert(like_list, {[uid] = nickname})
+            end
         end
     end
-    
+
     local res = {
         like_list = like_list,
         next_cursor = next_cursor,
