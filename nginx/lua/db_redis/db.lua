@@ -30,7 +30,7 @@ function like(oid, uid)
 
             local nickname = common.get_data_with_cache({
                 key="nickname_of_"..uid,
-                exp_time_succ=300,
+                exp_time_succ=6000,
                 exp_time_fail=-1},
                 _get_nickname, uid)
             
@@ -52,7 +52,7 @@ function is_like(oid, uid)
 
     local is_like, err = common.get_data_with_cache({
         key="is_like_"..oid.."_"..uid,
-        exp_time_succ=300,
+        exp_time_succ=600,
         exp_time_fail=-1},
         _is_like, oid, uid)
 
@@ -67,7 +67,7 @@ function count(oid)
 
     local count, err = common.get_data_with_cache({
         key="like_count_of_"..oid,
-        exp_time_succ=300,
+        exp_time_succ=600,
         exp_time_fail=-1},
         _get_like_count, oid)
 
@@ -108,7 +108,7 @@ function list(args)
         end
         size, err = common.get_data_with_cache({
           key="like_count_of"..oid,
-          exp_time_succ=300,
+          exp_time_succ=600,
           exp_time_fail=-1},
           _get_like_size, oid)
     end
@@ -140,7 +140,7 @@ function list(args)
 
             local nickname = common.get_data_with_cache({
                 key="nickname_of_"..uid,
-                exp_time_succ=300,
+                exp_time_succ=6000,
                 exp_time_fail=-1},
                 _get_nickname, uid)
 
