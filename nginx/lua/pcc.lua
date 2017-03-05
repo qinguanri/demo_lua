@@ -59,18 +59,18 @@ local function _action_list()
     local args = {
         oid       = ngx.req.get_uri_args().oid,
         uid       = ngx.req.get_uri_args().uid,
-        cursor   = ngx.req.get_uri_args().cursor or 0,
+        cursor   = tonumber(ngx.req.get_uri_args().cursor or 0),
         page_size = ngx.req.get_uri_args().page_size or 512,
         is_friend = tonumber(ngx.req.get_uri_args().is_friend or 0) }
     
-    ngx.log(ngx.ERR, "args="..common.json_encode(args))
+    --ngx.log(ngx.ERR, "args="..common.json_encode(args))
 
     local res, err = redis_op.list(args)
     return res, err
 end
 
 local action = ngx.req.get_uri_args().action
-ngx.log(ngx.INFO, "action=", action)
+--ngx.log(ngx.INFO, "action=", action)
 local res, err
 if action == 'like' then
     res, err = _action_like()

@@ -17,8 +17,8 @@ function like(oid, uid)
     end
     
     local uids, err = red:zrange('like:'..oid, -20, -1)
-    ngx.log(ngx.ERR, "action like, like_list"..common.json_encode(uids))
-    ngx.log(ngx.ERR, "type="..type(uids))
+    --ngx.log(ngx.ERR, "action like, like_list"..common.json_encode(uids))
+    --ngx.log(ngx.ERR, "type="..type(uids))
     local like_list = {}
     if uids and type(uids) == 'table' then
         for _, uid in pairs(uids) do
@@ -41,7 +41,7 @@ function is_like(oid, uid)
 
     local is_like, err = common.get_data_with_cache({
         key="like_count_"..oid.."_"..uid,
-        exp_time_succ=5,
+        exp_time_succ=60,
         exp_time_fail=-1},
         _is_like, oid, uid)
 
@@ -56,7 +56,7 @@ function count(oid)
 
     local count, err = common.get_data_with_cache({
         key="like_count_"..oid,
-        exp_time_succ=5,
+        exp_time_succ=10,
         exp_time_fail=-1},
         _get_like_count, oid)
 
@@ -87,9 +87,19 @@ function list(args)
     if args.is_friend == 1 then
         target_list = "friend_like_list:"..uid
         size, err = red:zinterstore(target_list, 2, "like:"..oid, "friend:"..uid)
+        size = size or 0
     else
         target_list = "like:"..oid
-        size, err = red:zcard(target_list)
+        local _get_like_size = function(oid)
+            local target_list = "like:"..oid
+            local s, err = red:zcard(target_list)
+            return s or 0
+        end
+        size, err = common.get_data_with_cache({
+          key="size_like_"..oid,
+          exp_time_succ=60,
+          exp_time_fail=-1},
+          _get_like_size, oid)
     end
 
     local start, stop
@@ -100,7 +110,7 @@ function list(args)
         stop = cursor
         start = stop - page_size
     end
-    
+     
     if stop > size then
         stop = size
     end
