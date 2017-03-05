@@ -28,7 +28,7 @@ function like(oid, uid)
                 return nickname
             end
 
-            local nickname = common.get_data_with_cache(
+            local nickname = common.get_data_with_cache({
                 key="nickname_of_"..uid,
                 exp_time_succ=300,
                 exp_time_fail=-1},
@@ -138,7 +138,7 @@ function list(args)
                 return nickname
             end
 
-            local nickname = common.get_data_with_cache(
+            local nickname = common.get_data_with_cache({
                 key="nickname_of_"..uid,
                 exp_time_succ=300,
                 exp_time_fail=-1},
