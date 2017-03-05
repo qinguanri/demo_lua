@@ -86,5 +86,13 @@ else
         error_message = 'unexpected action' .. (action or "nil")
     }
 end
-
+if err then
+    res = {
+        error_code = 501,
+        error_message = err,
+        oid       = ngx.req.get_uri_args().oid,
+        uid       = ngx.req.get_uri_args().uid
+    }
+    ngx.log(ngx.INFO, "got error"..err)
+end
 ngx.say(common.json_encode(res))

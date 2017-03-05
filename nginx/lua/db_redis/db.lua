@@ -9,11 +9,13 @@ function like(oid, uid)
     local timestamp = ngx.time()
     local res, err = red:zadd('like:'..oid, timestamp, uid)
     if err then
+        ngx.log(ngx.INFO, "like zadd err:"..err)
         return nil, err
     end
 
     if res == 0 then
         err = "object already been liked"
+        return nil, err
     end
     
     local uids, err = red:zrange('like:'..oid, -20, -1)
@@ -29,7 +31,7 @@ function like(oid, uid)
             --ngx.log(ngx.ERR, "like_list="..common.json_encode(like_list))
         end
     end
-
+   
     return like_list, err
 end
 
