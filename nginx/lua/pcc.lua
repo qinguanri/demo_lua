@@ -2,22 +2,23 @@ local common = require "lua.comm.common"
 local redis_op = require "lua.db_redis.db"
 
 ngx.req.discard_body()
+
 ------ 主要数据结构 ------
 --[==[
 
-1. hash user:uid:nickname e.g:hset user uid nickname
+1. user, hash 类型, e.g: hset user uid nickname
 
-2. sort key 的名称为 friend:uid, 集合中的元素为uid。 e.g: sadd friend:11 12, sadd friend:12 11
+2. friend, zset 类型，集合中的元素为 uid 及 时间。 e.g: zadd friend:11 nowtime 12
 
-3. sort, key 的名称为 like:oid, 集合中的元素为uid。 e.g: sadd like:101 11, sadd like:101 12
+3. like, zset 类型, 集合中的元素为uid 及 时间。 e.g: zadd like:101 11
 
-sort 
 ]==]
 
+local uri_args = ngx.req.get_uri_args()
 
 local function _action_like()
-    local oid = ngx.req.get_uri_args().oid
-    local uid = ngx.req.get_uri_args().uid
+    local oid = uri_args.oid
+    local uid = uri_args.uid
 
     local like_list, err = redis_op.like(oid, uid)
 
@@ -30,8 +31,8 @@ local function _action_like()
 end
 
 local function _action_is_like()
-    local oid = ngx.req.get_uri_args().oid
-    local uid = ngx.req.get_uri_args().uid
+    local oid = uri_args.oid
+    local uid = uri_args.uid
 
     local is_like, err = redis_op.is_like(oid, uid)
 
@@ -44,7 +45,7 @@ local function _action_is_like()
 end
 
 local function _action_count()
-    local oid = ngx.req.get_uri_args().oid
+    local oid = uri_args.oid
     local count, err = redis_op.count(oid)
 
     local res = {
@@ -56,20 +57,18 @@ end
 
 local function _action_list()
     local args = {
-        oid       = ngx.req.get_uri_args().oid,
-        uid       = ngx.req.get_uri_args().uid,
-        cursor   = tonumber(ngx.req.get_uri_args().cursor or 0),
-        page_size = ngx.req.get_uri_args().page_size or 512,
-        is_friend = tonumber(ngx.req.get_uri_args().is_friend or 0) }
-    
-    --ngx.log(ngx.ERR, "args="..common.json_encode(args))
+        oid       = uri_args.oid,
+        uid       = uri_args.uid,
+        cursor   = tonumber(uri_args.cursor or 0),
+        page_size = uri_args.page_size or 512,
+        is_friend = tonumber(uri_args.is_friend or 0) }
 
     local res, err = redis_op.list(args)
     return res, err
 end
 
-local action = ngx.req.get_uri_args().action
---ngx.log(ngx.INFO, "action=", action)
+local action = uri_args.action
+
 local res, err
 if action == 'like' then
     res, err = _action_like()
@@ -87,9 +86,8 @@ if err then
     res = {
         error_code = 501,
         error_message = err,
-        oid       = ngx.req.get_uri_args().oid,
-        uid       = ngx.req.get_uri_args().uid
-    }
-    ngx.log(ngx.INFO, "got error"..err)
+        oid = uri_args.oid,
+        uid = uri_args.uid}
 end
+
 ngx.say(common.json_encode(res))

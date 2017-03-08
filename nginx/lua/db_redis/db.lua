@@ -1,13 +1,20 @@
 module(..., package.seeall)
 local redis = require "lua.db_redis.db_base"
 local common = require "lua.comm.common"
---local murmurhash2 = require "resty.murmurhash2"
 local red = redis:new()
 
-------------
+
 function like(oid, uid)
-    local timestamp = ngx.time()
-    local res, err = red:zadd('like:'..oid, timestamp, uid)
+    local ngx_dict_name = "cache_ngx"
+    -- get from cache
+    local cache_ngx = ngx.shared[ngx_dict_name]
+    local is_liked = cache_ngx:get("is_like_"..oid.."_"..uid)
+    if is_liked then
+        local err = "object already been liked"
+        return nil, err
+    end
+    
+    local res, err = red:zadd('like:oid', ngx.time(), uid)
     if err then
         ngx.log(ngx.INFO, "like zadd err:"..err)
         return nil, err
@@ -18,8 +25,17 @@ function like(oid, uid)
         return nil, err
     end
     
-    local uids, err = red:zrange('like:'..oid, -20, -1)
-    
+    local _get_range_for_like = function(oid)
+        local uids, err = red:zrange('like:'..oid, -20, -1)
+        return uids
+    end
+
+    local uids = common.get_data_with_cache({
+                key="range_for_like:"..oid,
+                exp_time_succ=600,
+                exp_time_fail=-1},
+                _get_range_for_like, oid)
+
     local like_list = {}
     if uids and type(uids) == 'table' then
         for _, uid in pairs(uids) do
@@ -37,12 +53,12 @@ function like(oid, uid)
             if nickname ~= nil then
                 table.insert(like_list, { [uid] = nickname})
             end
-            --ngx.log(ngx.ERR, "like_list="..common.json_encode(like_list))
         end
     end
    
     return like_list, err
 end
+
 
 function is_like(oid, uid)
     local _is_like = function(oid, uid)
@@ -86,17 +102,18 @@ function list(args)
         }
         return res, nil
     end
-    
+
     local oid = args.oid
     local uid = args.uid
-    local cursor = args.cursor   --ngx.req.get_uri_args().cursor or 0,
-    local page_size = args.page_size --ngx.req.get_uri_args().page_size or 512,
-    local is_friend = args.is_friend --ngx.req.get_uri_args().is_friend or 0 } 
-    
+    local cursor = args.cursor
+    local page_size = args.page_size
+    local is_friend = args.is_friend
+
     local target_list, size, err
     -- 只返回好友的uid
     if args.is_friend == 1 then
         target_list = "friend_like_list:"..uid
+        -- todo: 这里需要优化
         size, err = red:zinterstore(target_list, 2, "like:"..oid, "friend:"..uid)
         size = size or 0
     else
