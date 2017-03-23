@@ -42,7 +42,7 @@
 * ```count <oid>```。查询```like:<oid>```集合的元素数量。即```zcard like:<oid>```
 * ```list <oid> <uid> <cursor> <pagesize> <isfriend>```。实现list稍微比较复杂，需要对有序集合取交集。利用有序集合中的timestamp,可以解决cursor等问题，还可以方便实现优先显示好友list。详情可以参阅代码。
 
-最后对该系统做了压力测试。如下是压测结果，离目标 qps 30 万还存在很大的差距。需要做的优化工作还有很多啊。
+最后对该系统做了压力测试。如下是压测结果，离目标 qps 30 万还存在很大的差距。
 
 ![](./images/performance1.png)
 ![](./images/performance2.png)
