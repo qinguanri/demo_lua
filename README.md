@@ -27,26 +27,24 @@
 
 |内容|数据结构|说明|
 |:----:|:---:|:---:|
-|User|HASH|hset user <uid> <nickname>|
-|Friend|ZSET|zadd friend:<uid> <timestamp> <uid>|
-|Like|ZSET|zadd like:<oid> <timestamp> <uid>|
+|User|HASH|```hset user <uid> <nickname>```|
+|Friend|ZSET|```zadd friend:<uid> <timestamp> <uid>```|
+|Like|ZSET|```zadd like:<oid> <timestamp> <uid>```|
 
 * user 信息使用哈希结构存储
-* Friend 信息使用有序集合存储，集合friend:<uid1>中记录的是某个<uid2>在<timestamp>时刻与<uid1>成为好友
-* Like 信息使用有序集合存储，集合like:<oid>中记录的是某个<uid>在<timestamp>时刻开始关注<oid>
+* Friend 信息使用有序集合存储，集合```friend:<uid1>```中记录的是某个```<uid2>```在```<timestamp>```时刻与```<uid1>```成为好友
+* Like 信息使用有序集合存储，集合```like:<oid>```中记录的是某个```<uid>```在```<timestamp>```时刻开始关注```<oid>```
 
 ## 主要算法：
 
-* like <oid> <uid> 。对like:<oid>集合添加个元素即可。即 ```zadd like:<oid> <nowtime> <uid>```
-* islike <oid> <uid>。查询like:<oid>集合。即```zscore like:<oid> <uid>```
-* count <oid>。查询like:<oid>集合的元素数量。即```zcard like:<oid>```
-* list <oid> <uid> <cursor> <pagesize> <isfriend>。实现list稍微比较复杂，需要对有序集合取交集。利用有序集合中的timestamp,可以解决cursor等问题，还可以方便实现优先显示好友list。详情可以参阅代码。
+* ```like <oid> <uid>``` 。对```like:<oid>```集合添加个元素即可。即 ```zadd like:<oid> <nowtime> <uid>```
+* ```islike <oid> <uid>```。查询```like:<oid>```集合。即```zscore like:<oid> <uid>```
+* ```count <oid>```。查询```like:<oid>```集合的元素数量。即```zcard like:<oid>```
+* ```list <oid> <uid> <cursor> <pagesize> <isfriend>```。实现list稍微比较复杂，需要对有序集合取交集。利用有序集合中的timestamp,可以解决cursor等问题，还可以方便实现优先显示好友list。详情可以参阅代码。
+
+最后对该系统做了压力测试。如下是压测结果，离目标 qps 30 万还存在很大的差距。需要做的优化工作还有很多啊。
 
 ![](./images/performance1.png)
 ![](./images/performance2.png)
 
-最后对该系统做了压力测试。如下是压测结果，离目标 qps 30 万还存在很大的差距。需要做的优化工作还有很多啊。
-
-在实际比赛中，使用了青云提供的云环境，极大简化了服务器及网络的准备步骤，为业务开发和调试省出了更多的时间。
-
-在此给青云的同学们点个大大的赞~
+在实际比赛中，使用了青云提供的云环境，极大简化了服务器及网络的准备步骤，为业务开发和调试省出了更多的时间。在此给青云的同学们点个大大的赞~
