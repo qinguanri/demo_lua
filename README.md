@@ -2,14 +2,14 @@
 
 本项目利用 OpenResty 和 Pika, 尝试解决 [PCC 挑战赛](https://github.com/archnotes/PCC)中提出的问题:
 
-实现类似 facebook 中的 like 功能，需要：
+>实现类似 facebook 中的 like 功能，需要：
 
-* 可以对一个对象（一条feed、文章、或者url）进行 like 操作，禁止 like 两次，第二次 like 返回错误码
-* 有 isLike 接口，返回参数指定的对象有没有被当前用户 like 过
-* 需要看到一个对象的 like 计数
-* 可以看到一个对象的 like 用户列表（类似 QQ 空间）；
-* 上述列表加分项：Like优先显示我的好友列表(social list)。
-* 数据量：每天新增的 like 对象数为 1 千万，每秒 like 计数器查询量为 30 万次 / 秒。
+>* 可以对一个对象（一条feed、文章、或者url）进行 like 操作，禁止 like 两次，第二次 like 返回错误码
+>* 有 isLike 接口，返回参数指定的对象有没有被当前用户 like 过
+>* 需要看到一个对象的 like 计数
+>* 可以看到一个对象的 like 用户列表（类似 QQ 空间）；
+>* 上述列表加分项：Like优先显示我的好友列表(social list)。
+>* 数据量：每天新增的 like 对象数为 1 千万，每秒 like 计数器查询量为 30 万次 / 秒。
 
 我采用的是 [OpenResty](http://openresty.org/en/) + [Pika](https://github.com/Qihoo360/pika) 的架构，OpenResty 能支持高并发的请求处理，使用Lua脚本完成业务逻辑处理，利用OpenResty的 [ngx shared dict cache](https://moonbingbing.gitbooks.io/openresty-best-practices/content/ngx_lua/cache.html) 完成数据的缓存。存储层使用Pika，利用有序集合、hash等数据结构存储用户数据。
 
